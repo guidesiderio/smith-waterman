@@ -14,22 +14,27 @@ Run with pytest (if installed):
 pytest tests.py -v
 ```
 
-Run the algorithm directly with built-in examples:
+Run algorithms directly with built-in examples:
 ```
 python smith_waterman.py
+python needleman_wunsch.py
 ```
 
 ## Architecture
 
-Single-module implementation in `smith_waterman.py`. The public API is one function:
+Two single-module implementations sharing the same public API signature:
 
 ```python
 aligned1, aligned2, score = smith_waterman(seq1, seq2, match=2, mismatch=-1, gap=-1)
+aligned1, aligned2, score = needleman_wunsch(seq1, seq2, match=2, mismatch=-1, gap=-1)
 ```
 
-Internally split into:
+Each module is internally split into:
 - `_build_matrix` — fills the H scoring matrix (O(m×n) time and space)
-- `_traceback` — finds the highest cell and walks back to reconstruct both aligned strings
+- `_traceback` — walks back through H to reconstruct both aligned strings
 - `_score` — match/mismatch helper
+- `_format_alignment` — three-line display string with match indicators
+
+Key difference: Smith-Waterman (local) floors cells at 0 and traces back from the highest-scoring cell; Needleman-Wunsch (global) allows negative values and always traces back from H[m][n] to H[0][0].
 
 `tests.py` contains standalone test functions runnable as `python tests.py` (no test framework required). Note: the return order is `(aligned1, aligned2, score)` — not `(score, aligned1, aligned2)`.
