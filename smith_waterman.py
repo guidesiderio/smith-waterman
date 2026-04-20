@@ -1,5 +1,7 @@
 """Smith-Waterman local sequence alignment algorithm."""
 
+import itertools
+
 
 def smith_waterman(
     seq1: str,
@@ -92,17 +94,19 @@ def _traceback(
             aligned1.append(seq1[i - 1])
             aligned2.append("-")
             i -= 1
-        else:
+        elif current == left + gap:
             aligned1.append("-")
             aligned2.append(seq2[j - 1])
             j -= 1
+        else:
+            raise ValueError(f"Traceback inconsistency at ({i}, {j})")
 
     return "".join(reversed(aligned1)), "".join(reversed(aligned2)), best_score
 
 
 def _format_alignment(seq1: str, seq2: str) -> str:
     """Return a three-line alignment string with match indicators."""
-    middle = "".join("|" if a == b else " " for a, b in zip(seq1, seq2))
+    middle = "".join("|" if a == b else " " for a, b in itertools.zip_longest(seq1, seq2, fillvalue=" "))
     return f"{seq1}\n{middle}\n{seq2}"
 
 
