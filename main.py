@@ -4,7 +4,8 @@ from alignment import build_nw_matrix, format_matrix, global_align, local_align
 
 INPUT_FILE = "input.txt"
 OUTPUT_FILE = "output.txt"
-SEPARATOR = "==========================================================="
+EQUALS = "==========================================================="
+DASHES = "-----------------------------------------------------------"
 
 
 def parse_input(path: str) -> tuple[str, str, int, int, int]:
@@ -23,11 +24,13 @@ def render(seq1: str, seq2: str, match: int, mismatch: int, gap: int) -> str:
     l1, l2, lscore = local_align(seq1, seq2, match, mismatch, gap)
 
     parts = [
-        "# ** matrix **",
-        "",
+        DASHES,
+        "** matrix **",
+        EQUALS,
         format_matrix(H, seq1, seq2),
-        SEPARATOR,
+        EQUALS,
         f"** Match = {match} | mismatch = {mismatch} | Gap = {gap} **",
+        DASHES,
         "",
         "Alinhamento Global",
         " ".join(g1),
