@@ -4,37 +4,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-Run all tests:
+Run the program (reads `input.txt`, writes `output.txt`):
+
+```
+python main.py
+```
+
+Run tests:
+
 ```
 python tests.py
 ```
 
-Run with pytest (if installed):
-```
-pytest tests.py -v
-```
-
-Run algorithms directly with built-in examples:
-```
-python smith_waterman.py
-python needleman_wunsch.py
-```
-
 ## Architecture
 
-Two single-module implementations sharing the same public API signature:
+Two-file project plus an input file:
 
-```python
-aligned1, aligned2, score = smith_waterman(seq1, seq2, match=2, mismatch=-1, gap=-1)
-aligned1, aligned2, score = needleman_wunsch(seq1, seq2, match=2, mismatch=-1, gap=-1)
-```
+- `main.py` — entry point. Parses `input.txt`, calls into `alignment.py`,
+  prints the formatted output and writes it to `output.txt`.
+- `alignment.py` — core algorithms. Public functions:
+  - `build_nw_matrix(seq1, seq2, match, mismatch, gap)` — Needleman-Wunsch matrix
+  - `build_sw_matrix(seq1, seq2, match, mismatch, gap)` — Smith-Waterman matrix
+  - `global_align(seq1, seq2, match, mismatch, gap)` — `(aligned1, aligned2, score)`
+  - `local_align(seq1, seq2, match, mismatch, gap)` — `(aligned1, aligned2, score)`
+  - `format_matrix(H, seq1, seq2)` — rotated matrix display
+- `input.txt` — five lines: seq1, seq2, gap, mismatch, match.
+- `tests.py` — single `__main__` block; assert-based.
 
-Each module is internally split into:
-- `_build_matrix` — fills the H scoring matrix (O(m×n) time and space)
-- `_traceback` — walks back through H to reconstruct both aligned strings
-- `_score` — match/mismatch helper
-- `_format_alignment` — three-line display string with match indicators
+## Backtrace conventions (assignment-specific)
 
-Key difference: Smith-Waterman (local) floors cells at 0 and traces back from the highest-scoring cell; Needleman-Wunsch (global) allows negative values and always traces back from H[m][n] to H[0][0].
+- **Global (NW)** — backtrace starts at the cell with the highest score in the
+  **last column** (semi-global on seq1's suffix), not at `H[m][n]`. Ends at `H[0][0]`.
+- **Local (SW)** — backtrace starts at the highest-scoring cell anywhere in
+  the matrix and stops when `H[i][j] == 0`.
 
-`tests.py` contains standalone test functions runnable as `python tests.py` (no test framework required). Note: the return order is `(aligned1, aligned2, score)` — not `(score, aligned1, aligned2)`.
+## Output format
+
+`main.py` prints (and writes to `output.txt`):
+
+1. `# ** matrix **` header
+2. The NW matrix, rendered rotated (row 0 labeled `U` at the bottom; header line `X U <seq2>` last)
+3. A separator line of `=` characters
+4. The score-parameter line: `** Match = X | mismatch = Y | Gap = Z **`
+5. `Alinhamento Global` block: aligned seq1, aligned seq2 (chars space-separated), `Score = ...`
+6. `Alinhamento Local` block: same shape
+
+Return order from both align functions is `(aligned1, aligned2, score)`.
