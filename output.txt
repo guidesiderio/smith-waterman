@@ -1,0 +1,19 @@
+# ** matrix **
+
+C -6 -3 0 -2
+T -4 -1 -2 -4
+A -2 -1 -3 -5
+U 0 -2 -4 -6
+X U T C G
+===========================================================
+** Match = 1 | mismatch = -1 | Gap = -2 **
+
+Alinhamento Global
+A T C -
+- T C G
+Score = -2
+
+Alinhamento Local
+T C
+T C
+Score = 2
